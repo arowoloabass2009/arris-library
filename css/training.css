@@ -1,0 +1,234 @@
+/* ============================================================
+   ARRIS LIBRARY — Training School Styles
+   ============================================================ */
+
+/* ── Training Hero ── */
+.training-hero {
+  padding: clamp(120px, 14vw, 180px) 0 clamp(80px, 10vw, 130px);
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+.training-hero::before {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  right: -100px;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(ellipse, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Course Card ── */
+.course-card {
+  background: var(--black-card);
+  border: var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.course-card:hover {
+  border-color: var(--gold-muted);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,168,76,0.1);
+}
+.course-banner {
+  aspect-ratio: 16/9;
+  background: var(--black-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.course-banner-glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  filter: blur(30px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8rem;
+}
+.course-banner-emoji { position: relative; z-index: 1; }
+.course-banner-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+}
+.course-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.course-track { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+.course-title { font-family: var(--font-serif); font-size: 1.1rem; color: var(--cream); line-height: 1.35; }
+.course-desc  { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; flex: 1; }
+.course-instructor { display: flex; align-items: center; gap: 8px; }
+.instructor-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gold-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--black);
+  flex-shrink: 0;
+}
+.instructor-name { font-size: 0.78rem; color: var(--text-muted); }
+.course-footer {
+  padding: 14px 20px;
+  border-top: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.course-stats { display: flex; gap: 16px; align-items: center; }
+.course-stat { display: flex; align-items: center; gap: 5px; font-size: 0.78rem; color: var(--text-muted); }
+.course-stat-icon { font-size: 0.9rem; }
+
+/* ── Track Hero Cards ── */
+.track-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 48px;
+}
+.track-card {
+  background: var(--black-card);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.track-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  background: radial-gradient(ellipse, var(--track-color, rgba(201,168,76,0.15)) 0%, transparent 70%);
+  transition: opacity 0.3s;
+}
+.track-card:hover { border-color: var(--gold-muted); transform: translateY(-4px); box-shadow: var(--shadow-gold); }
+.track-card.active { border-color: var(--gold); background: rgba(201,168,76,0.05); }
+.track-icon { font-size: 2.2rem; margin-bottom: 12px; }
+.track-name { font-family: var(--font-serif); font-size: 1.1rem; color: var(--cream); margin-bottom: 6px; }
+.track-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+.track-count { font-size: 0.72rem; font-weight: 700; color: var(--gold); margin-top: 12px; letter-spacing: 0.06em; }
+
+/* ── Course Detail ── */
+.course-detail-header {
+  padding: clamp(100px, 12vw, 160px) 0 clamp(60px, 8vw, 100px);
+  background: var(--black);
+  position: relative;
+}
+.course-detail-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+.course-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 48px;
+  align-items: start;
+}
+.course-detail-banner {
+  aspect-ratio: 16/9;
+  background: var(--black-card);
+  border: var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.course-sidebar-card {
+  background: var(--black-card);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: sticky;
+  top: 96px;
+}
+.course-sidebar-price {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.course-sidebar-price span { font-size: 1rem; color: var(--text-muted); font-family: var(--font-sans); font-weight: 400; }
+.course-includes { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.include-item { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--text-muted); }
+.include-icon { color: var(--gold); font-size: 0.9rem; flex-shrink: 0; }
+
+/* ── Curriculum ── */
+.curriculum-section { margin-top: 40px; }
+.curriculum-module {
+  background: var(--black-card);
+  border: var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.curriculum-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.curriculum-header:hover { background: var(--gold-glow2); }
+.curriculum-title { font-weight: 600; font-size: 0.92rem; color: var(--cream); }
+.curriculum-meta  { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 12px; }
+.curriculum-toggle { color: var(--gold); transition: transform 0.3s; font-size: 1rem; }
+.curriculum-module.open .curriculum-toggle { transform: rotate(180deg); }
+.curriculum-lessons { display: none; padding: 0 20px 16px; }
+.curriculum-module.open .curriculum-lessons { display: flex; flex-direction: column; gap: 4px; }
+.lesson-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+.lesson-item:hover { background: var(--gold-glow2); color: var(--text-main); }
+.lesson-icon { font-size: 0.85rem; width: 18px; text-align: center; flex-shrink: 0; }
+.lesson-duration { margin-left: auto; font-size: 0.75rem; color: var(--text-muted); }
+
+/* ── Enrollment ── */
+.enroll-modal .modal { max-width: 480px; }
+.enroll-success { text-align: center; padding: 20px 0; }
+.enroll-success-icon { font-size: 3.5rem; margin-bottom: 16px; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .course-detail-grid { grid-template-columns: 1fr; }
+  .course-sidebar-card { position: static; }
+}
+@media (max-width: 600px) {
+  .track-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 400px) {
+  .track-cards { grid-template-columns: 1fr; }
+}

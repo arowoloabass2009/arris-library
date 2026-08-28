@@ -1,0 +1,109 @@
+/* ============================================================
+   ARRIS LIBRARY — Splash / Intro Screen Styles
+   ============================================================ */
+
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--black);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+#splash-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: splashFadeIn 1s ease forwards;
+}
+
+.splash-logo-icon {
+  width: 90px;
+  height: 90px;
+  background: var(--black-card);
+  border: 2px solid var(--gold-muted);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--gold);
+  position: relative;
+  box-shadow: 0 0 60px rgba(201,168,76,0.3), inset 0 0 30px rgba(201,168,76,0.06);
+}
+.splash-logo-icon::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 30px;
+  border: 1px solid rgba(201,168,76,0.15);
+  animation: pulseBorder 2.5s ease infinite;
+}
+
+.splash-name {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 900;
+  color: var(--cream);
+  letter-spacing: -0.01em;
+}
+.splash-name span { color: var(--gold); }
+.splash-sub {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: -8px;
+}
+
+.splash-progress {
+  width: 200px;
+  height: 2px;
+  background: var(--black-border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.splash-progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--gold-dark), var(--gold-light));
+  border-radius: 2px;
+  width: 0%;
+  animation: splashLoad 1.8s ease forwards;
+  animation-delay: 0.3s;
+}
+
+.splash-tagline {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  animation: splashFadeIn 1s ease 0.6s both;
+}
+
+@keyframes splashFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes splashLoad {
+  0%   { width: 0%; }
+  60%  { width: 75%; }
+  100% { width: 100%; }
+}
+@keyframes pulseBorder {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.04); }
+}
