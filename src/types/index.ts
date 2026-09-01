@@ -47,6 +47,7 @@ export interface Book {
   updated_at: string;
   created_by?: string;
   content_url?: string;
+  download_url?: string;
   rating?: number;
   downloads?: number;
 }

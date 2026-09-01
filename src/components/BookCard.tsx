@@ -2,9 +2,11 @@
 // ARRIS LIBRARY — Book Card Component
 // ============================================================
 
+import { useState } from 'react';
 import type { Book } from '../types';
 import { BOOK_CATEGORIES } from '../data/books';
 import { useAdmin } from '../hooks/useAdmin';
+import { BooksService } from '../lib/supabase';
 
 interface BookCardProps {
   book: Book;
@@ -33,17 +35,42 @@ const StarRating = ({ rating }: { rating?: number }) => {
 export default function BookCard({ book, onEdit, onDelete }: BookCardProps) {
   const { isAdmin } = useAdmin();
   const cat = BOOK_CATEGORIES.find(c => c.id === book.category);
+  const [downloading, setDownloading] = useState(false);
+
+  // ── Download handler ──
+  const handleDownload = async () => {
+    if (!book.download_url) return;
+    setDownloading(true);
+
+    try {
+      // Increment the download counter in Supabase (fire-and-forget, don't block UI)
+      const newCount = (book.downloads ?? 0) + 1;
+      BooksService.update(book.id, { downloads: newCount }).catch(() => {});
+
+      // Trigger browser download
+      const link = document.createElement('a');
+      link.href = book.download_url;
+      // Try to force download; falls back to open-in-tab for non-downloadable URLs
+      link.setAttribute('download', `${book.title}.pdf`);
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      setTimeout(() => setDownloading(false), 1200);
+    }
+  };
 
   return (
-    <article className="group relative bg-obsidian-900 border border-obsidian-700 hover:border-gold-500/40 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-gold-500/10">
+    <article className="group relative bg-obsidian-900 border border-obsidian-700 hover:border-gold-500/40 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-gold-500/10 flex flex-col">
 
       {/* ── Book Cover ── */}
-      <div className={`relative h-44 bg-gradient-to-br ${book.cover_color || 'from-obsidian-800 to-obsidian-700'} flex items-center justify-center overflow-hidden`}>
-        {/* Decorative book spine effect */}
+      <div className={`relative h-44 bg-gradient-to-br ${book.cover_color || 'from-obsidian-800 to-obsidian-700'} flex items-center justify-center overflow-hidden flex-shrink-0`}>
+        {/* Book spine */}
         <div className="absolute left-0 top-0 bottom-0 w-4 bg-black/30" />
         <div className="absolute left-4 top-0 bottom-0 w-px bg-white/10" />
 
-        {/* Book icon */}
         <div className="flex flex-col items-center gap-2 px-8 text-center">
           <span className="text-4xl opacity-80">{cat?.icon || '📚'}</span>
           <div>
@@ -61,11 +88,23 @@ export default function BookCard({ book, onEdit, onDelete }: BookCardProps) {
           </div>
         )}
 
-        {/* Unpublished badge */}
+        {/* Draft badge (admin only) */}
         {!book.is_published && isAdmin && (
           <div className="absolute top-3 left-6">
             <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-900/60 border border-red-500/40 text-red-300 font-inter font-semibold text-[10px] uppercase tracking-wider">
               Draft
+            </span>
+          </div>
+        )}
+
+        {/* Download available indicator on cover */}
+        {book.download_url && (
+          <div className="absolute bottom-3 right-3">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 font-inter font-semibold text-[9px] uppercase tracking-wider">
+              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Available
             </span>
           </div>
         )}
@@ -75,13 +114,13 @@ export default function BookCard({ book, onEdit, onDelete }: BookCardProps) {
       </div>
 
       {/* ── Book Info ── */}
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-inter font-semibold uppercase tracking-wider bg-gradient-to-r ${cat?.color || 'from-obsidian-700 to-obsidian-600'} text-white/80`}>
             {cat?.icon} {cat?.label || book.category}
           </span>
           {book.year && (
-            <span className="text-obsidian-500 font-inter text-xs">{book.year}</span>
+            <span className="text-obsidian-500 font-inter text-xs flex-shrink-0">{book.year}</span>
           )}
         </div>
 
@@ -90,18 +129,67 @@ export default function BookCard({ book, onEdit, onDelete }: BookCardProps) {
         </h3>
         <p className="font-inter text-gold-500/80 text-xs font-medium mb-2">{book.author}</p>
 
-        <p className="font-inter text-obsidian-400 text-xs leading-relaxed line-clamp-2 mb-3">
+        <p className="font-inter text-obsidian-400 text-xs leading-relaxed line-clamp-2 mb-3 flex-1">
           {book.description}
         </p>
 
-        <div className="flex items-center justify-between">
+        {/* Rating + pages */}
+        <div className="flex items-center justify-between mb-3">
           <StarRating rating={book.rating} />
-          {book.pages && (
-            <span className="font-inter text-obsidian-500 text-xs">{book.pages.toLocaleString()} pages</span>
-          )}
+          <div className="flex items-center gap-2">
+            {book.downloads !== undefined && book.downloads > 0 && (
+              <span className="font-inter text-obsidian-500 text-[10px] flex items-center gap-0.5">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                {book.downloads.toLocaleString()}
+              </span>
+            )}
+            {book.pages && (
+              <span className="font-inter text-obsidian-500 text-xs">{book.pages.toLocaleString()}p</span>
+            )}
+          </div>
         </div>
 
-        {/* Admin Actions */}
+        {/* ── Download Button ── */}
+        {book.download_url ? (
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            aria-label={`Download ${book.title}`}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-inter font-bold text-sm text-obsidian-950 bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 disabled:opacity-70 disabled:cursor-wait shadow-md shadow-gold-500/15 hover:shadow-gold-400/30 transition-all duration-200 hover:-translate-y-px"
+          >
+            {downloading ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Downloading...
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download Book
+              </>
+            )}
+          </button>
+        ) : (
+          <button
+            disabled
+            aria-label="No download available"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-inter font-semibold text-sm text-obsidian-500 bg-obsidian-800/50 border border-obsidian-700 cursor-not-allowed"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+            Not Available Yet
+          </button>
+        )}
+
+        {/* ── Admin Actions ── */}
         {isAdmin && (onEdit || onDelete) && (
           <div className="flex gap-2 mt-3 pt-3 border-t border-obsidian-700">
             {onEdit && (

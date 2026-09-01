@@ -334,7 +334,7 @@ export default function AdminPage() {
                 <table className="w-full text-left">
                   <thead className="bg-obsidian-800 border-b border-obsidian-700">
                     <tr>
-                      {['Title', 'Author', 'Category', 'Status', 'Actions'].map(h => (
+                      {['Title', 'Author', 'Category', 'Download', 'Status', 'Actions'].map(h => (
                         <th key={h} className="px-4 py-3 font-inter font-semibold text-obsidian-300 text-xs uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
@@ -355,6 +355,18 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
+                          {book.download_url ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-900/40 border border-emerald-700/40 text-emerald-300 font-inter text-[10px] font-semibold">
+                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              Set
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 rounded-full bg-obsidian-800 text-obsidian-500 font-inter text-[10px]">None</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
                           <span className={`px-2 py-1 rounded-full text-xs font-inter font-semibold ${
                             book.is_published
                               ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-700/40'
@@ -366,7 +378,7 @@ export default function AdminPage() {
                         <td className="px-4 py-3">
                           <div className="flex gap-2">
                             <button
-                              onClick={() => { setBookForm({ title: book.title, author: book.author, category: book.category, description: book.description, cover_color: book.cover_color, is_featured: book.is_featured, is_published: book.is_published }); setEditingBook(book.id); setBookModal(true); }}
+                              onClick={() => { setBookForm({ title: book.title, author: book.author, category: book.category, description: book.description, cover_color: book.cover_color, is_featured: book.is_featured, is_published: book.is_published, download_url: book.download_url ?? '' }); setEditingBook(book.id); setBookModal(true); }}
                               className="px-3 py-1.5 rounded-lg bg-gold-500/10 hover:bg-gold-500/20 border border-gold-500/20 text-gold-400 font-inter text-xs font-semibold transition-all"
                             >Edit</button>
                             <button
@@ -592,7 +604,13 @@ export default function AdminPage() {
               </button>
             </div>
             <div className="space-y-4">
-              {([['Title *', 'title', 'text', 'Book title'], ['Author *', 'author', 'text', 'Author name'], ['ISBN', 'isbn', 'text', 'ISBN number'], ['Pages', 'pages', 'number', '0'], ['Year', 'year', 'number', '2024']] as [string, keyof typeof bookForm, string, string][]).map(([label, field, type, placeholder]) => (
+              {([
+                ['Title *',   'title',  'text',   'Book title'],
+                ['Author *',  'author', 'text',   'Author name'],
+                ['ISBN',      'isbn',   'text',   'e.g. 978-3-16-148410-0'],
+                ['Pages',     'pages',  'number', '0'],
+                ['Year',      'year',   'number', '2024'],
+              ] as [string, keyof typeof bookForm, string, string][]).map(([label, field, type, placeholder]) => (
                 <div key={field}>
                   <label className="block font-inter font-semibold text-xs text-gold-400 uppercase tracking-wider mb-1.5">{label}</label>
                   <input type={type} value={(bookForm[field] as string | number) ?? ''} onChange={e => setBookForm(p => ({ ...p, [field]: type === 'number' ? Number(e.target.value) : e.target.value }))}
@@ -600,6 +618,29 @@ export default function AdminPage() {
                     className="w-full bg-obsidian-800 border border-obsidian-700 focus:border-gold-500/60 focus:ring-2 focus:ring-gold-500/20 rounded-xl px-4 py-2.5 font-inter text-white text-sm focus:outline-none transition-all" />
                 </div>
               ))}
+
+              {/* Download URL */}
+              <div>
+                <label className="block font-inter font-semibold text-xs text-gold-400 uppercase tracking-wider mb-1.5">
+                  Download URL
+                </label>
+                <div className="relative">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-obsidian-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  <input
+                    type="url"
+                    value={bookForm.download_url ?? ''}
+                    onChange={e => setBookForm(p => ({ ...p, download_url: e.target.value }))}
+                    placeholder="https://example.com/book.pdf"
+                    className="w-full bg-obsidian-800 border border-obsidian-700 focus:border-gold-500/60 focus:ring-2 focus:ring-gold-500/20 rounded-xl pl-10 pr-4 py-2.5 font-inter text-white text-sm focus:outline-none transition-all placeholder:text-obsidian-600"
+                  />
+                </div>
+                <p className="mt-1 font-inter text-obsidian-500 text-[11px]">
+                  Paste a direct link to a PDF or any downloadable file. Leave blank to show "Not Available".
+                </p>
+              </div>
+
               <div>
                 <label className="block font-inter font-semibold text-xs text-gold-400 uppercase tracking-wider mb-1.5">Category</label>
                 <select value={bookForm.category} onChange={e => setBookForm(p => ({ ...p, category: e.target.value as BookCategory }))}
