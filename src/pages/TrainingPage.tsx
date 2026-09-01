@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import CourseCard from '../components/CourseCard';
 import { TrainingService } from '../lib/supabase';
-import { SAMPLE_COURSES, TRAINING_CATEGORIES } from '../data/courses';
+import { TRAINING_CATEGORIES } from '../data/courses';
 import { useAdmin } from '../hooks/useAdmin';
 import { useToast } from '../hooks/useToast';
 import type { TrainingCourse } from '../types';
@@ -31,23 +31,10 @@ export default function TrainingPage() {
       setLoading(true);
       try {
         const data = await TrainingService.getAll({ published: isAdmin ? undefined : true });
-        if (data.length > 0) {
-          setCourses(data);
-        } else {
-          setCourses(SAMPLE_COURSES.map((c, i) => ({
-            ...c,
-            id: `sample-course-${i}`,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })) as TrainingCourse[]);
-        }
-      } catch {
-        setCourses(SAMPLE_COURSES.map((c, i) => ({
-          ...c,
-          id: `sample-course-${i}`,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })) as TrainingCourse[]);
+        setCourses(data);
+      } catch (err) {
+        console.error('Failed to load courses:', err);
+        showToast('Could not load courses. Check your connection.', 'error');
       } finally {
         setLoading(false);
       }
@@ -58,7 +45,7 @@ export default function TrainingPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this course?')) return;
     try {
-      if (!id.startsWith('sample-')) await TrainingService.delete(id);
+      await TrainingService.delete(id);
       setCourses(prev => prev.filter(c => c.id !== id));
       showToast('Course deleted', 'success');
     } catch {

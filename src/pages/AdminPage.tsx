@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react';
 import { useAdmin } from '../hooks/useAdmin';
 import { useToast } from '../hooks/useToast';
 import { BooksService, TrainingService, AnnouncementsService, ContactService } from '../lib/supabase';
-import { BOOK_CATEGORIES, SAMPLE_BOOKS } from '../data/books';
-import { TRAINING_CATEGORIES, SAMPLE_COURSES } from '../data/courses';
+import { BOOK_CATEGORIES } from '../data/books';
+import { TRAINING_CATEGORIES } from '../data/courses';
 import type { Book, TrainingCourse, Announcement, ContactMessage, BookCategory, TrainingCategory, CourseLevel } from '../types';
 
 type AdminTab = 'dashboard' | 'books' | 'courses' | 'announcements' | 'messages';
@@ -68,10 +68,8 @@ export default function AdminPage() {
         AnnouncementsService.getAll(),
         ContactService.getAll(),
       ]);
-      if (bk.status === 'fulfilled' && bk.value.length > 0) setBooks(bk.value);
-      else setBooks(SAMPLE_BOOKS.map((b, i) => ({ ...b, id: `s-${i}`, created_at: '', updated_at: '' }) as Book));
-      if (cs.status === 'fulfilled' && cs.value.length > 0) setCourses(cs.value);
-      else setCourses(SAMPLE_COURSES.map((c, i) => ({ ...c, id: `sc-${i}`, created_at: '', updated_at: '' }) as TrainingCourse));
+      if (bk.status === 'fulfilled') setBooks(bk.value);
+      if (cs.status === 'fulfilled') setCourses(cs.value);
       if (an.status === 'fulfilled') setAnnouncements(an.value);
       if (msg.status === 'fulfilled') setMessages(msg.value);
     } catch {
@@ -101,7 +99,7 @@ export default function AdminPage() {
   const saveBook = async () => {
     if (!bookForm.title || !bookForm.author) { showToast('Title and author are required', 'error'); return; }
     try {
-      if (editingBook && !editingBook.startsWith('s-')) {
+      if (editingBook) {
         const updated = await BooksService.update(editingBook, bookForm);
         setBooks(prev => prev.map(b => b.id === editingBook ? updated : b));
         showToast('Book updated', 'success');
@@ -122,7 +120,7 @@ export default function AdminPage() {
   const deleteBook = async (id: string) => {
     if (!confirm('Delete this book?')) return;
     try {
-      if (!id.startsWith('s-')) await BooksService.delete(id);
+      await BooksService.delete(id);
       setBooks(prev => prev.filter(b => b.id !== id));
       showToast('Book deleted', 'success');
     } catch { showToast('Failed to delete', 'error'); }
@@ -132,7 +130,7 @@ export default function AdminPage() {
   const saveCourse = async () => {
     if (!courseForm.title || !courseForm.instructor) { showToast('Title and instructor are required', 'error'); return; }
     try {
-      if (editingCourse && !editingCourse.startsWith('sc-')) {
+      if (editingCourse) {
         const updated = await TrainingService.update(editingCourse, courseForm);
         setCourses(prev => prev.map(c => c.id === editingCourse ? updated : c));
         showToast('Course updated', 'success');
@@ -150,7 +148,7 @@ export default function AdminPage() {
   const deleteCourse = async (id: string) => {
     if (!confirm('Delete this course?')) return;
     try {
-      if (!id.startsWith('sc-')) await TrainingService.delete(id);
+      await TrainingService.delete(id);
       setCourses(prev => prev.filter(c => c.id !== id));
       showToast('Course deleted', 'success');
     } catch { showToast('Failed to delete', 'error'); }

@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import BookCard from '../components/BookCard';
 import { BooksService } from '../lib/supabase';
-import { SAMPLE_BOOKS, BOOK_CATEGORIES } from '../data/books';
+import { BOOK_CATEGORIES } from '../data/books';
 import { useAdmin } from '../hooks/useAdmin';
 import { useToast } from '../hooks/useToast';
 import type { Book } from '../types';
@@ -22,30 +22,16 @@ export default function LibraryPage() {
   const { isAdmin } = useAdmin();
   const { showToast } = useToast();
 
-  // Load books — use sample data as fallback
+  // Load books from live Supabase
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
         const data = await BooksService.getAll({ published: isAdmin ? undefined : true });
-        if (data.length > 0) {
-          setBooks(data);
-        } else {
-          // Seed sample data display when DB is empty
-          setBooks(SAMPLE_BOOKS.map((b, i) => ({
-            ...b,
-            id: `sample-${i}`,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })) as Book[]);
-        }
-      } catch {
-        setBooks(SAMPLE_BOOKS.map((b, i) => ({
-          ...b,
-          id: `sample-${i}`,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })) as Book[]);
+        setBooks(data);
+      } catch (err) {
+        console.error('Failed to load books:', err);
+        showToast('Could not load books. Check your connection.', 'error');
       } finally {
         setLoading(false);
       }
@@ -53,7 +39,6 @@ export default function LibraryPage() {
     load();
   }, [isAdmin]);
 
-  // Search
   const handleSearch = async (q: string) => {
     setSearchQuery(q);
     if (!q.trim()) {
@@ -63,20 +48,14 @@ export default function LibraryPage() {
     setSearching(true);
     try {
       const results = await BooksService.search(q);
-      setSearchResults(
-        results.length > 0
-          ? results
-          : books.filter(b =>
-              b.title.toLowerCase().includes(q.toLowerCase()) ||
-              b.author.toLowerCase().includes(q.toLowerCase()) ||
-              b.description.toLowerCase().includes(q.toLowerCase())
-            )
-      );
+      setSearchResults(results);
     } catch {
+      // fallback to client-side filter on already-loaded books
       setSearchResults(
         books.filter(b =>
           b.title.toLowerCase().includes(q.toLowerCase()) ||
-          b.author.toLowerCase().includes(q.toLowerCase())
+          b.author.toLowerCase().includes(q.toLowerCase()) ||
+          b.description.toLowerCase().includes(q.toLowerCase())
         )
       );
     } finally {
@@ -87,7 +66,7 @@ export default function LibraryPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this book?')) return;
     try {
-      if (!id.startsWith('sample-')) await BooksService.delete(id);
+      await BooksService.delete(id);
       setBooks(prev => prev.filter(b => b.id !== id));
       showToast('Book deleted successfully', 'success');
     } catch {
