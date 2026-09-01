@@ -19,7 +19,7 @@ build
 *.sln
 *.sw?
 
-# Environment variables
+# Environment variables — keep .env.example, ignore actual secrets
 .env
 .env.local
 .env.development.local

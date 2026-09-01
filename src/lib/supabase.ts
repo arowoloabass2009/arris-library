@@ -1,13 +1,18 @@
 // ============================================================
 // ARRIS LIBRARY — Supabase Client
-// Project: vpfjwievtbbgepwlogls.supabase.co
+// Credentials via VITE_ env vars (Vercel) or inline fallback (local dev)
 // ============================================================
 
 import { createClient } from '@supabase/supabase-js';
 import type { Book, TrainingCourse, Announcement, ContactMessage } from '../types';
 
-const SUPABASE_URL = 'https://vpfjwievtbbgepwlogls.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwZmp3aWV2dGJiZ2Vwd2xvZ2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MDM2ODgsImV4cCI6MjEwMzQ3OTY4OH0.EPb_lipPD1baaQM9VgEYzXDbh3AIIH7_9TQX10hGcvI';
+const SUPABASE_URL =
+  import.meta.env.VITE_SUPABASE_URL ??
+  'https://vpfjwievtbbgepwlogls.supabase.co';
+
+const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ??
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwZmp3aWV2dGJiZ2Vwd2xvZ2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MDM2ODgsImV4cCI6MjEwMzQ3OTY4OH0.EPb_lipPD1baaQM9VgEYzXDbh3AIIH7_9TQX10hGcvI';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, storageKey: 'arris_library_vpfjwievtbbgepwlogls' },
