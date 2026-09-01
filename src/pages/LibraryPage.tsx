@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import BookCard from '../components/BookCard';
 import { BooksService } from '../lib/supabase';
 import { BOOK_CATEGORIES } from '../data/books';
-import { useAdmin } from '../hooks/useAdmin';
 import { useToast } from '../hooks/useToast';
 import type { Book } from '../types';
 
@@ -19,7 +18,6 @@ export default function LibraryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Book[] | null>(null);
   const [searching, setSearching] = useState(false);
-  const { isAdmin } = useAdmin();
   const { showToast } = useToast();
 
   // Load books from live Supabase
@@ -27,7 +25,7 @@ export default function LibraryPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const data = await BooksService.getAll({ published: isAdmin ? undefined : true });
+        const data = await BooksService.getAll({ published: true });
         setBooks(data);
       } catch (err) {
         console.error('Failed to load books:', err);
@@ -37,7 +35,7 @@ export default function LibraryPage() {
       }
     };
     load();
-  }, [isAdmin]);
+  }, []);
 
   const handleSearch = async (q: string) => {
     setSearchQuery(q);
@@ -60,17 +58,6 @@ export default function LibraryPage() {
       );
     } finally {
       setSearching(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this book?')) return;
-    try {
-      await BooksService.delete(id);
-      setBooks(prev => prev.filter(b => b.id !== id));
-      showToast('Book deleted successfully', 'success');
-    } catch {
-      showToast('Failed to delete book', 'error');
     }
   };
 
@@ -199,8 +186,6 @@ export default function LibraryPage() {
               <BookCard
                 key={book.id}
                 book={book}
-                onEdit={isAdmin ? () => {} : undefined}
-                onDelete={isAdmin ? handleDelete : undefined}
               />
             ))}
           </div>
