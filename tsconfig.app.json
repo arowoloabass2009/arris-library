@@ -16,7 +16,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": false,
+    "types": ["vite/client"]
   },
   "include": ["src"]
 }

@@ -15,19 +15,18 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    // Generate source maps for production debugging (optional — remove if you prefer)
     sourcemap: false,
     rollupOptions: {
       output: {
-        // Chunk vendor libs separately for better caching
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'supabase':     ['@supabase/supabase-js'],
+        // Function form — required by Rollup v4 / Vite 5+
+        manualChunks(id: string) {
+          if (id.includes('node_modules/@supabase')) return 'supabase';
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'react-vendor';
         },
       },
     },
   },
 
-  // Ensure env vars are available to the client bundle
+  // Expose VITE_* env vars to the client bundle
   envPrefix: 'VITE_',
 })
